@@ -2,9 +2,16 @@
 
 ## More human-friendly file access interface.
 
+You don't have to worry about if a file is open or close,  
+its mode is read or write any more.  
+
 ## Install
 
-TODO
+```
+git clone git@github.com:chyka-dev/PyFile.git
+cd PyFile
+python setup.py install
+```
 
 ## Usage
 
