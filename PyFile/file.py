@@ -1,11 +1,10 @@
 # -*- coding:utf-8 -*-
 
-from __future__ import unicode_literals
 import six
-from past.builtins import basestring
+
+from pystring import String
 
 
-@six.python_2_unicode_compatible
 class File(object):
     """More human-friendly file access interface.
     Works on Python2 and 3.
@@ -17,10 +16,9 @@ class File(object):
         del file
     """
     class Mode:
-        r = "r+"
-        w = "w"
-        a = "a+"
-        b = "rwb+"
+        r = "rb"
+        w = "wb+"
+        a = "ab+"
 
     def __init__(self, path, encoding="utf-8"):
         self.path = path
@@ -61,13 +59,11 @@ class File(object):
         return self.seek(0, 2)
 
     def seek(self, *args, **kwargs):
-        """WIP"""
-        self.ensure_open(self.Mode.b)
+        """WIP what about mode?"""
         return self._fd.seek(*args, **kwargs)
 
     def truncate(self, *args, **kwargs):
-        """WIP"""
-        self.ensure_open(self.Mode.b)
+        """WIP How should I work??"""
         return self._fd.truncate(*args, **kwargs)
 
     def read(self, *args, **kwargs):
@@ -78,17 +74,17 @@ class File(object):
             hello, world
         """
         self.ensure_open(self.Mode.r)
-        return self._fd.read(*args, **kwargs)
+        return String(self._fd.read(*args, **kwargs))
 
     def readline(self, *args, **kwargs):
         self.ensure_open(self.Mode.r)
-        return self._fd.readline(*args, **kwargs)
+        return String(self._fd.readline(*args, **kwargs))
 
     def readlines(self, *args, **kwargs):
         self.ensure_open(self.Mode.r)
-        return self._fd.readlines(*args, **kwargs)
+        return (String(s) for s in self._fd.readlines(*args, **kwargs))
 
-    def write(self, *args, **kwargs):
+    def write(self, data, *args, **kwargs):
         """
         Usage:
             >>> file = File("hello.txt")
@@ -97,7 +93,7 @@ class File(object):
             hello, world
         """
         self.ensure_open(self.Mode.w)
-        return self.__write(*args, **kwargs)
+        return self.__write(data, *args, **kwargs)
 
     def writelines(self, seq, *args, **kwargs):
         """
@@ -112,7 +108,7 @@ class File(object):
         seq = [self.__ensure_nl(line) for line in seq] 
         return self.__writelines(seq, *args, **kwargs)
 
-    def append(self, *args, **kwargs):
+    def append(self, data, *args, **kwargs):
         """
         Usage:
             >>> file = File("hello.txt")
@@ -123,7 +119,7 @@ class File(object):
             hello, world
         """
         self.ensure_open(self.Mode.a)
-        return self.__.write(*args, **kwargs)
+        return self.__write(data, *args, **kwargs)
 
     def appendlines(self, seq, *args, **kwargs):
         """
@@ -169,7 +165,6 @@ class File(object):
             return self
         self.mode = mode
         self._fd = self.__open(
-            #self.path, mode, encoding=self.encoding, *args, **kwargs
             self.path, mode, *args, **kwargs
         )
         return self
@@ -196,9 +191,6 @@ class File(object):
             >>> assert self.__ensure_nl("") == "\n"
             >>> assert self.__ensure_nl("hello") == "hello\n"
         """
-        if not isinstance(string, basestring):
-            string = str(string)
-
         if not string.endswith("\n"):
             string += "\n"
         return string
@@ -206,37 +198,18 @@ class File(object):
     def __write(self, data, *args, **kwargs):
         """Use this instead of fd.write.
         """
-        if six.PY3 and 'b' in self.mode:
-            data = self.__ensure_bytes(data)
-        else:
-            data = self.__ensure_str(data)
-        self._fd.write(data, *args, **kwargs)
+        data = String(data, self.encoding)
+        self._fd.write(data.encode(self.encoding), *args, **kwargs)
 
     def __writelines(self, seq, *args, **kwargs):
         """Use this instead of fd.writelines.
         """
-        if six.PY3 and 'b' in self.mode:
-            seq = [self.__ensure_bytes(line) for line in seq]
-        else:
-            seq = [self.__ensure_str(line) for line in seq]
-
+        seq = [String(s, self.encoding).encode(self.encoding) for s in seq]
         self._fd.writelines(seq, *args, **kwargs)
 
-    def __ensure_str(self, text):
-        if isinstance(text, str):
-            return text
-        return text.encode(self.encoding)
-
-    def __ensure_bytes(self, b):
-        if isinstance(b, bytes):
-            return b
-        return b.encode("utf-8")
-
     def __open(self, *args, **kwargs):
-        if six.PY3:
-            return open(*args, **kwargs)
-    
         # In python2, open doesn't accept `encoding`.
+        # In python3, `encoding` cannot be specified on binary mode.
         if 'encoding' in kwargs:
             del kwargs['encoding']
         return open(*args, **kwargs)
