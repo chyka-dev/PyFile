@@ -36,16 +36,3 @@ class String(str):
     def encode(self, *args, **kwargs):
         return super(String, self).encode(*args, **kwargs)
 
-
-if __name__ == "__main__":
-    # py3
-    #assert String("рщпу") == "рщпу"
-    #assert String("рщпу".encode("utf-8")) == "рщпу"
-
-    # py2
-    assert String("рщпу") == u"рщпу"
-    assert String(u"рщпу") == u"рщпу"
-    s = String(u"ыпрущ")
-    with open("./ru.txt", "wb") as fd:
-        fd.write(s.encode("utf-8"))
-
