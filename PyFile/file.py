@@ -2,7 +2,7 @@
 
 import six
 
-from pystring import String
+from .pystring import String
 
 
 class File(object):
