@@ -34,6 +34,11 @@ class PyFile(object):
             self.path, self.encoding, self.mode 
         )
 
+    def __iter__(self):
+        self.ensure_open(self.Mode.r)
+        for l in self._fd:
+            yield PyString(l)
+
     def top(self):
         """
         Usage:
