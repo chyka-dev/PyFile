@@ -2,10 +2,10 @@
 
 import six
 
-from .pystring import String
+from .pystring import PyString
 
 
-class File(object):
+class PyFile(object):
     """More human-friendly file access interface.
     Works on Python2 and 3.
 
@@ -74,15 +74,15 @@ class File(object):
             hello, world
         """
         self.ensure_open(self.Mode.r)
-        return String(self._fd.read(*args, **kwargs))
+        return PyString(self._fd.read(*args, **kwargs))
 
     def readline(self, *args, **kwargs):
         self.ensure_open(self.Mode.r)
-        return String(self._fd.readline(*args, **kwargs))
+        return PyString(self._fd.readline(*args, **kwargs))
 
     def readlines(self, *args, **kwargs):
         self.ensure_open(self.Mode.r)
-        return (String(s) for s in self._fd.readlines(*args, **kwargs))
+        return (PyString(s) for s in self._fd.readlines(*args, **kwargs))
 
     def write(self, data, *args, **kwargs):
         """
@@ -198,13 +198,13 @@ class File(object):
     def __write(self, data, *args, **kwargs):
         """Use this instead of fd.write.
         """
-        data = String(data, self.encoding)
+        data = PyString(data, self.encoding)
         self._fd.write(data.encode(self.encoding), *args, **kwargs)
 
     def __writelines(self, seq, *args, **kwargs):
         """Use this instead of fd.writelines.
         """
-        seq = [String(s, self.encoding).encode(self.encoding) for s in seq]
+        seq = [PyString(s, self.encoding).encode(self.encoding) for s in seq]
         self._fd.writelines(seq, *args, **kwargs)
 
     def __open(self, *args, **kwargs):

@@ -11,7 +11,7 @@ Usage:
 
 import six
 
-class String(str):
+class PyString(str):
     """内部でstr->unicode, bytes->str変換する。
     """
     def __new__(cls, value="", encoding="utf-8", *args, **kwargs):
