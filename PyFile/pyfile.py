@@ -1,5 +1,7 @@
 # -*- coding:utf-8 -*-
 
+import os
+
 import six
 
 from .pystring import PyString
@@ -38,6 +40,12 @@ class PyFile(object):
         self.ensure_open(self.Mode.r)
         for l in self._fd:
             yield PyString(l)
+
+    def statinfo(self):
+        return os.stat(self.path)
+
+    def size(self):
+        return os.stat(self.path).st_size
 
     def top(self):
         """
