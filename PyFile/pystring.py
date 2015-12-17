@@ -25,7 +25,7 @@ class PyString(str):
         # PY3 bytes
         if six.PY3 and not isinstance(value, str):
             # encode once, and decode again, 'cause str() doesn't accept bytes
-            value = value.decode(encoding)
+            value = value.decode(encoding, errors="ignore")
             return str.__new__(str, value, *args, **kwargs)
 
         # PY2 unicode 
